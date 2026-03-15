@@ -1,0 +1,79 @@
+@media (max-width: 768px) {
+  #book-wrapper {
+    padding: 8px 4px 0;
+  }
+
+  .page {
+    padding: 18px 14px;
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+
+  .system-ui-zero,
+  .system-ui-v2 {
+    font-size: 8.5px;
+    padding: 8px 10px;
+    margin: 10px 0;
+    line-height: 1.35;
+  }
+
+  .cover-title {
+    font-size: 1.8rem;
+    letter-spacing: 6px;
+  }
+
+  .cover-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .ep-number {
+    font-size: 2rem;
+  }
+
+  .ep-title {
+    font-size: 1.2rem;
+  }
+
+  #toolbar {
+    gap: 16px;
+    padding: 8px;
+  }
+
+  #toolbar button {
+    padding: 5px 10px;
+    font-size: 1rem;
+  }
+
+  #page-indicator {
+    font-size: 0.75rem;
+  }
+
+  .toc-item {
+    padding: 12px 12px;
+  }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .page {
+    padding: 28px 32px;
+    font-size: 14.5px;
+  }
+
+  .system-ui-zero,
+  .system-ui-v2 {
+    font-size: 10px;
+  }
+}
+
+/* Large desktop */
+@media (min-width: 1400px) {
+  #book {
+    max-width: 1200px;
+  }
+
+  .page {
+    padding: 44px 56px;
+    font-size: 16px;
+  }
+}
