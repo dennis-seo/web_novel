@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>제로 코드 — Zero Code</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Nanum+Gothic+Coding:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="preload" href="/fonts/D2Coding.ttf" as="font" type="font/ttf" crossorigin>
+</head>
+<body>
+  <div id="app">
+    <div id="loading">
+      <div class="loading-text">제로 코드</div>
+      <div class="loading-sub">ZERO CODE</div>
+      <div class="loading-spinner"></div>
+    </div>
+    <div id="book-wrapper" style="display:none;">
+      <div id="book"></div>
+      <div id="toolbar">
+        <button id="btn-toc" title="목차">&#9776;</button>
+        <span id="page-indicator">1 / ?</span>
+        <button id="btn-theme" title="테마 전환">&#9684;</button>
+      </div>
+    </div>
+    <div id="toc-panel" style="display:none;">
+      <div class="toc-header">
+        <h2>목차</h2>
+        <button id="btn-toc-close">&times;</button>
+      </div>
+      <ul id="toc-list"></ul>
+    </div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

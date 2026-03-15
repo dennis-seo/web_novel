@@ -1,0 +1,46 @@
+.page {
+  background: linear-gradient(145deg, #fdfcf7 0%, #f5f0e6 100%);
+  padding: 36px 44px;
+  font-family: 'Noto Serif KR', serif;
+  font-size: 15px;
+  line-height: 1.85;
+  color: #2c2c2c;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.page p {
+  margin-bottom: 10px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.page p:last-child {
+  margin-bottom: 0;
+}
+
+/* Subtle page texture */
+.page-content {
+  position: relative;
+}
+
+.page-content::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.03), transparent);
+}
+
+/* Dark theme */
+.dark-theme .page {
+  background: linear-gradient(145deg, #1c1c1c 0%, #222222 100%);
+  color: #c8c8c8;
+}
+
+.dark-theme .page-content::after {
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.02), transparent);
+}
