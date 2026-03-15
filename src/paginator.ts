@@ -1,7 +1,7 @@
 import type { ContentBlock, Episode, Page } from './types';
 
-const DESKTOP_CHARS = 350;
-const MOBILE_CHARS = 200;
+const DESKTOP_CHARS = 800;
+const MOBILE_CHARS = 500;
 
 export function paginateEpisodes(
   episodes: Episode[],
