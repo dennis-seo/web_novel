@@ -29,3 +29,13 @@ export interface BookData {
   totalEpisodes: number;
   episodes: Episode[];
 }
+
+export interface NovelInfo {
+  id: string;
+  title: string;
+  subtitle: string;
+  author: string;
+  description: string;
+  coverColor: string;
+  totalEpisodes: number;
+}

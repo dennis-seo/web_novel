@@ -17,6 +17,15 @@ interface Episode {
   blocks: Block[];
 }
 
+interface NovelMeta {
+  id: string;
+  title: string;
+  subtitle: string;
+  author: string;
+  description: string;
+  coverColor: string;
+}
+
 function classifyBlocks(content: string): Block[] {
   const blocks: Block[] = [];
   const lines = content.split('\n');
@@ -91,46 +100,81 @@ function classifyBlocks(content: string): Block[] {
 
 // Main
 const projectRoot = process.cwd();
-const episodesDir = path.resolve(projectRoot, 'episodes');
-const outputDir = path.resolve(projectRoot, 'public');
+const novelsDir = path.resolve(projectRoot, 'novels');
+const outputDir = path.resolve(projectRoot, 'public', 'data');
 
 if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, { recursive: true });
 }
 
-const files = fs.readdirSync(episodesDir)
-  .filter(f => /^ep\d{3}\.md$/.test(f))
+// Scan all novel folders
+const novelFolders = fs.readdirSync(novelsDir)
+  .filter(f => fs.statSync(path.join(novelsDir, f)).isDirectory())
   .sort();
 
-const episodes: Episode[] = [];
+const novelsList: Array<NovelMeta & { totalEpisodes: number }> = [];
 
-for (const file of files) {
-  const raw = fs.readFileSync(path.join(episodesDir, file), 'utf-8');
-  const { data, content } = matter(raw);
-  const blocks = classifyBlocks(content);
-  episodes.push({
-    meta: {
-      episode: data.episode,
-      title: data.title || '',
-      chars: data.chars || 0,
-      summary: data.summary || '',
-    },
-    blocks,
+for (const folder of novelFolders) {
+  const novelDir = path.join(novelsDir, folder);
+  const metaPath = path.join(novelDir, 'novel.json');
+
+  if (!fs.existsSync(metaPath)) {
+    console.warn(`Skipping ${folder}: no novel.json found`);
+    continue;
+  }
+
+  const novelMeta: NovelMeta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
+
+  // Read episodes
+  const files = fs.readdirSync(novelDir)
+    .filter(f => /^ep\d{3}\.md$/.test(f))
+    .sort();
+
+  const episodes: Episode[] = [];
+
+  for (const file of files) {
+    const raw = fs.readFileSync(path.join(novelDir, file), 'utf-8');
+    const { data, content } = matter(raw);
+    const blocks = classifyBlocks(content);
+    episodes.push({
+      meta: {
+        episode: data.episode,
+        title: data.title || '',
+        chars: data.chars || 0,
+        summary: data.summary || '',
+      },
+      blocks,
+    });
+  }
+
+  // Write per-novel data file
+  const bookData = {
+    title: novelMeta.title,
+    subtitle: novelMeta.subtitle,
+    author: novelMeta.author,
+    totalEpisodes: episodes.length,
+    episodes,
+  };
+
+  fs.writeFileSync(
+    path.join(outputDir, `${novelMeta.id}.json`),
+    JSON.stringify(bookData),
+    'utf-8'
+  );
+
+  console.log(`  ${novelMeta.id}: ${episodes.length} episodes → public/data/${novelMeta.id}.json`);
+
+  novelsList.push({
+    ...novelMeta,
+    totalEpisodes: episodes.length,
   });
 }
 
-const bookData = {
-  title: '제로 코드',
-  subtitle: 'Zero Code',
-  author: 'Jeffrey',
-  totalEpisodes: episodes.length,
-  episodes,
-};
-
+// Write novels index
 fs.writeFileSync(
-  path.join(outputDir, 'book-data.json'),
-  JSON.stringify(bookData),
+  path.join(outputDir, 'novels.json'),
+  JSON.stringify(novelsList),
   'utf-8'
 );
 
-console.log(`Built ${episodes.length} episodes → public/book-data.json`);
+console.log(`\nBuilt ${novelsList.length} novel(s) → public/data/novels.json`);

@@ -1,0 +1,150 @@
+/* Novel Selector - Main Page */
+#novel-selector {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 40px 20px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.selector-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.selector-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #d0d0d0;
+  letter-spacing: 4px;
+  margin-bottom: 8px;
+}
+
+.selector-sub {
+  font-size: 0.8rem;
+  color: #666;
+  letter-spacing: 2px;
+}
+
+#novel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* Novel Card */
+.novel-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.novel-card:hover {
+  transform: translateY(-4px);
+  border-color: #444;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.novel-card:active {
+  transform: translateY(-2px);
+}
+
+.novel-card-cover {
+  background: var(--cover-color, #0a0f1a);
+  padding: 32px 24px;
+  text-align: center;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.novel-card-deco {
+  font-family: 'D2Coding', 'Nanum Gothic Coding', monospace;
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+
+.novel-card-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #e0e0e0;
+  letter-spacing: 3px;
+  margin-bottom: 6px;
+}
+
+.novel-card-subtitle {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.novel-card-line {
+  width: 40px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 16px auto;
+}
+
+.novel-card-author {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 2px;
+}
+
+.novel-card-info {
+  padding: 16px 20px;
+}
+
+.novel-card-desc {
+  font-size: 0.82rem;
+  color: #999;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  word-break: keep-all;
+}
+
+.novel-card-episodes {
+  font-family: 'D2Coding', 'Nanum Gothic Coding', monospace;
+  font-size: 0.7rem;
+  color: #4a6fa5;
+  letter-spacing: 1px;
+}
+
+/* Dark theme */
+.dark-theme .novel-card {
+  background: #111;
+  border-color: #222;
+}
+
+.dark-theme .novel-card:hover {
+  border-color: #333;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #novel-selector {
+    padding: 24px 16px;
+  }
+
+  .selector-header {
+    margin-bottom: 32px;
+  }
+
+  .selector-title {
+    font-size: 1.3rem;
+  }
+
+  #novel-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

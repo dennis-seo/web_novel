@@ -5,51 +5,115 @@ import './styles/system-ui.css';
 import './styles/cover.css';
 import './styles/navigation.css';
 import './styles/responsive.css';
+import './styles/selector.css';
 
 import type { BookData } from './types';
 import { paginateEpisodes } from './paginator';
 import { BookRenderer } from './book-renderer';
 import { setupNavigation, restoreBookmark } from './navigation';
+import { initSelector, hideSelector, showSelector } from './novel-selector';
 
-async function init() {
+let currentRenderer: BookRenderer | null = null;
+
+function getNovelIdFromHash(): string | null {
+  const hash = location.hash;
+  const match = hash.match(/^#\/(.+)$/);
+  return match ? match[1] : null;
+}
+
+function showLoading(show: boolean) {
+  const el = document.getElementById('loading')!;
+  el.style.display = show ? '' : 'none';
+}
+
+function showViewer(show: boolean) {
+  document.getElementById('book-wrapper')!.style.display = show ? 'flex' : 'none';
+  document.getElementById('toc-panel')!.style.display = 'none';
+}
+
+async function loadNovel(novelId: string) {
+  // Clean up previous renderer
+  if (currentRenderer) {
+    currentRenderer.destroy();
+    currentRenderer = null;
+  }
+
+  hideSelector();
+  showViewer(false);
+  showLoading(true);
+
   try {
     const base = import.meta.env.BASE_URL;
-    const res = await fetch(`${base}book-data.json`);
-    if (!res.ok) throw new Error('Failed to load book data');
+    const res = await fetch(`${base}data/${novelId}.json`);
+    if (!res.ok) throw new Error(`Novel "${novelId}" not found`);
 
     const data: BookData = await res.json();
     const isMobile = window.innerWidth <= 768;
     const pages = paginateEpisodes(data.episodes, isMobile);
 
-    // Wait for fonts to load before rendering
     await document.fonts.ready;
 
-    // Hide loading, show book
-    document.getElementById('loading')!.style.display = 'none';
-    document.getElementById('book-wrapper')!.style.display = 'flex';
+    showLoading(false);
+    showViewer(true);
 
-    // Render book
+    // Update title
+    document.title = `${data.title} — ${data.subtitle}`;
+
     const renderer = new BookRenderer('book');
     renderer.render(pages, data.episodes);
+    currentRenderer = renderer;
 
-    // Setup navigation
-    setupNavigation(renderer, data.episodes);
+    setupNavigation(renderer, data.episodes, novelId);
 
-    // Update page indicator
     const indicator = document.getElementById('page-indicator')!;
     indicator.textContent = `1 / ${pages.length}`;
 
-    // Restore last reading position
-    restoreBookmark(renderer);
+    restoreBookmark(renderer, novelId);
 
   } catch (err) {
-    console.error('Init failed:', err);
+    console.error('Failed to load novel:', err);
+    showLoading(false);
+    showSelector();
+  }
+}
+
+async function showMainPage() {
+  // Clean up viewer
+  if (currentRenderer) {
+    currentRenderer.destroy();
+    currentRenderer = null;
+  }
+  showViewer(false);
+  showLoading(true);
+
+  try {
+    const base = import.meta.env.BASE_URL;
+    await initSelector(base);
+    showLoading(false);
+    document.title = 'Web Novel';
+  } catch (err) {
+    console.error('Failed to load selector:', err);
+    showLoading(false);
     const loading = document.getElementById('loading')!;
+    loading.style.display = '';
     loading.innerHTML = `
       <div class="loading-text">오류</div>
-      <div class="loading-sub">book-data.json을 불러올 수 없습니다.<br>npm run build:content를 먼저 실행하세요.</div>
+      <div class="loading-sub">novels.json을 불러올 수 없습니다.<br>npm run build:content를 먼저 실행하세요.</div>
     `;
   }
 }
 
-init();
+function handleRoute() {
+  const novelId = getNovelIdFromHash();
+  if (novelId) {
+    loadNovel(novelId);
+  } else {
+    showMainPage();
+  }
+}
+
+// Listen for hash changes
+window.addEventListener('hashchange', handleRoute);
+
+// Initial route
+handleRoute();
