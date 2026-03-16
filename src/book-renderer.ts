@@ -1,17 +1,28 @@
 import { PageFlip } from 'page-flip';
-import type { Page, Episode } from './types';
+import type { Page, Episode, BookData } from './types';
+import { formatInlineMarkdown, renderBlockHtml, type PageDimensions } from './paginator';
+
+interface BookMeta {
+  title: string;
+  subtitle: string;
+  author: string;
+}
 
 export class BookRenderer {
   private pageFlip: PageFlip | null = null;
   private container: HTMLElement;
   private pages: Page[] = [];
+  private dimensions: PageDimensions | null = null;
+  private bookMeta: BookMeta = { title: '', subtitle: '', author: '' };
 
   constructor(containerId: string) {
     this.container = document.getElementById(containerId)!;
   }
 
-  render(pages: Page[], episodes: Episode[]) {
+  render(pages: Page[], episodes: Episode[], dimensions?: PageDimensions, meta?: BookMeta) {
     this.pages = pages;
+    this.dimensions = dimensions ?? null;
+    if (meta) this.bookMeta = meta;
     this.container.innerHTML = '';
 
     for (const page of pages) {
@@ -42,18 +53,18 @@ export class BookRenderer {
     switch (page.type) {
       case 'book-cover':
         return `<div class="cover-content">
-          <div class="cover-deco top">// ZERO CODE v0.0</div>
-          <h1 class="cover-title">제로 코드</h1>
-          <p class="cover-subtitle">ZERO CODE</p>
+          <div class="cover-deco top">// ${this.bookMeta.subtitle || this.bookMeta.title}</div>
+          <h1 class="cover-title">${this.bookMeta.title}</h1>
+          <p class="cover-subtitle">${this.bookMeta.subtitle}</p>
           <div class="cover-line"></div>
-          <p class="cover-author">Jeffrey</p>
+          <p class="cover-author">${this.bookMeta.author}</p>
         </div>`;
 
       case 'back-cover':
         return `<div class="cover-content back">
           <div class="cover-line"></div>
-          <p class="back-text">제로 코드</p>
-          <p class="back-sub">— 완결 —</p>
+          <p class="back-text">${this.bookMeta.title}</p>
+          <p class="back-sub">— fin —</p>
           <div class="cover-line"></div>
         </div>`;
 
@@ -63,54 +74,40 @@ export class BookRenderer {
           <span class="ep-label">EPISODE</span>
           <span class="ep-number">${String(ep.episode).padStart(3, '0')}</span>
           <div class="ep-divider"></div>
-          <h2 class="ep-title">${this.escapeHtml(ep.title)}</h2>
+          <h2 class="ep-title">${formatInlineMarkdown(ep.title)}</h2>
         </div>`;
 
       case 'content':
-        return page.blocks.map(block => {
-          switch (block.type) {
-            case 'system-ui-zero':
-              return `<pre class="system-ui-zero">${this.escapeHtml(block.content)}</pre>`;
-            case 'system-ui-v2':
-              return `<pre class="system-ui-v2">${this.escapeHtml(block.content)}</pre>`;
-            case 'narrative':
-            case 'dialogue':
-              return `<p>${this.escapeHtml(block.content)}</p>`;
-            default:
-              return '';
-          }
-        }).join('\n');
+        return page.blocks.map(block => renderBlockHtml(block)).join('\n');
 
       default:
         return '';
     }
   }
 
-  private escapeHtml(text: string): string {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-  }
-
   private initFlip() {
     const isMobile = window.innerWidth <= 768;
-
-    // Calculate page dimensions from available space
-    const wrapper = this.container.parentElement!;
-    const availW = wrapper.clientWidth;
-    const availH = wrapper.clientHeight - 60; // reserve toolbar space
 
     let pageW: number;
     let pageH: number;
 
-    if (isMobile) {
-      pageW = Math.min(availW - 16, 400);
-      pageH = Math.min(availH, Math.round(pageW * 1.43));
+    if (this.dimensions) {
+      // Use pre-calculated dimensions (same as paginator used)
+      pageW = this.dimensions.width;
+      pageH = this.dimensions.height;
     } else {
-      // Desktop: each page is half the spread width
-      pageW = Math.min(Math.floor((availW - 16) / 2), 550);
-      pageH = Math.min(availH, Math.round(pageW * 1.33));
+      // Fallback: calculate from DOM
+      const wrapper = this.container.parentElement!;
+      const availW = wrapper.clientWidth;
+      const availH = wrapper.clientHeight - 60;
+
+      if (isMobile) {
+        pageW = Math.min(availW - 16, 400);
+        pageH = Math.min(availH, Math.round(pageW * 1.43));
+      } else {
+        pageW = Math.min(Math.floor((availW - 16) / 2), 550);
+        pageH = Math.min(availH, Math.round(pageW * 1.33));
+      }
     }
 
     this.pageFlip = new PageFlip(this.container as HTMLElement, {

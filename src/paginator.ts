@@ -1,21 +1,92 @@
 import type { ContentBlock, Episode, Page } from './types';
 
-const DESKTOP_CHARS = 800;
-const MOBILE_CHARS = 500;
+export interface PageDimensions {
+  width: number;
+  height: number;
+}
 
+/**
+ * Process inline markdown:
+ * - Escape HTML entities
+ * - **text** → <strong>text</strong> (magic names)
+ * - *text* → <strong class="inner-thought">text</strong> (inner monologue, bold)
+ */
+export function formatInlineMarkdown(text: string): string {
+  let html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  // **text** first (greedy match within single asterisks)
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // *text* (inner monologue → bold)
+  html = html.replace(/\*(.+?)\*/g, '<strong class="inner-thought">$1</strong>');
+  return html;
+}
+
+export function renderBlockHtml(block: ContentBlock): string {
+  switch (block.type) {
+    case 'system-ui-zero':
+      return `<pre class="system-ui-zero">${formatInlineMarkdown(block.content)}</pre>`;
+    case 'system-ui-v2':
+      return `<pre class="system-ui-v2">${formatInlineMarkdown(block.content)}</pre>`;
+    case 'narrative':
+    case 'dialogue':
+      return `<p>${formatInlineMarkdown(block.content)}</p>`;
+    default:
+      return '';
+  }
+}
+
+/**
+ * Calculate page dimensions from container element (matches BookRenderer.initFlip logic).
+ * Container must be visible in the DOM for accurate measurement.
+ */
+export function calculatePageDimensions(containerEl: HTMLElement): PageDimensions {
+  const isMobile = window.innerWidth <= 768;
+  const wrapper = containerEl.parentElement!;
+  const availW = wrapper.clientWidth;
+  const availH = wrapper.clientHeight - 60;
+
+  let pageW: number;
+  let pageH: number;
+
+  if (isMobile) {
+    pageW = Math.min(availW - 16, 400);
+    pageH = Math.min(availH, Math.round(pageW * 1.43));
+  } else {
+    pageW = Math.min(Math.floor((availW - 16) / 2), 550);
+    pageH = Math.min(availH, Math.round(pageW * 1.33));
+  }
+
+  return { width: pageW, height: pageH };
+}
+
+/**
+ * DOM-measurement based paginator.
+ * Creates a hidden element with real page dimensions and CSS styles,
+ * adds blocks one-by-one, and splits into pages when content overflows.
+ * This ensures text never gets clipped at the bottom of a page.
+ */
 export function paginateEpisodes(
   episodes: Episode[],
-  isMobile: boolean
+  dimensions: PageDimensions
 ): Page[] {
-  const charsPerPage = isMobile ? MOBILE_CHARS : DESKTOP_CHARS;
   const pages: Page[] = [];
 
+  // Create hidden measurement element with same styles as a real page
+  const measurer = document.createElement('div');
+  measurer.className = 'page page-content';
+  measurer.style.position = 'absolute';
+  measurer.style.left = '-9999px';
+  measurer.style.top = '0';
+  measurer.style.visibility = 'hidden';
+  measurer.style.width = `${dimensions.width}px`;
+  measurer.style.height = `${dimensions.height}px`;
+  measurer.style.boxSizing = 'border-box';
+  document.body.appendChild(measurer);
+
   // Book cover (hard page)
-  pages.push({
-    type: 'book-cover',
-    episodeIndex: -1,
-    blocks: [],
-  });
+  pages.push({ type: 'book-cover', episodeIndex: -1, blocks: [] });
 
   for (let i = 0; i < episodes.length; i++) {
     const ep = episodes[i];
@@ -29,7 +100,7 @@ export function paginateEpisodes(
     });
 
     let currentBlocks: ContentBlock[] = [];
-    let currentChars = 0;
+    measurer.innerHTML = '';
 
     for (const block of ep.blocks) {
       if (block.type === 'scene-break') {
@@ -37,54 +108,43 @@ export function paginateEpisodes(
         if (currentBlocks.length > 0) {
           pages.push({ type: 'content', episodeIndex: i, blocks: [...currentBlocks] });
           currentBlocks = [];
-          currentChars = 0;
+          measurer.innerHTML = '';
         }
         continue;
       }
 
-      const blockLen = block.content.length;
+      // Try adding the block
+      currentBlocks.push(block);
+      measurer.innerHTML = currentBlocks.map(b => renderBlockHtml(b)).join('\n');
 
-      // System UI blocks: never split, always get their own space
-      if (block.type === 'system-ui-zero' || block.type === 'system-ui-v2') {
-        if (currentChars > 0 && currentChars + blockLen > charsPerPage) {
-          // Flush current page first
+      // Check if content overflows the page
+      if (measurer.scrollHeight > measurer.clientHeight) {
+        // Remove the block that caused overflow
+        currentBlocks.pop();
+
+        if (currentBlocks.length > 0) {
+          // Flush current page without the overflowing block
           pages.push({ type: 'content', episodeIndex: i, blocks: [...currentBlocks] });
-          currentBlocks = [];
-          currentChars = 0;
         }
-        // If UI block alone exceeds page, it still gets its own page
-        if (blockLen > charsPerPage) {
-          if (currentBlocks.length > 0) {
-            pages.push({ type: 'content', episodeIndex: i, blocks: [...currentBlocks] });
-            currentBlocks = [];
-            currentChars = 0;
-          }
-          pages.push({ type: 'content', episodeIndex: i, blocks: [block] });
-          continue;
-        }
-      }
 
-      if (currentChars + blockLen > charsPerPage && currentBlocks.length > 0) {
-        pages.push({ type: 'content', episodeIndex: i, blocks: [...currentBlocks] });
+        // Start new page with the overflowing block
         currentBlocks = [block];
-        currentChars = blockLen;
-      } else {
-        currentBlocks.push(block);
-        currentChars += blockLen;
+        measurer.innerHTML = renderBlockHtml(block);
+        // If a single block overflows, it still gets its own page
       }
     }
 
     if (currentBlocks.length > 0) {
       pages.push({ type: 'content', episodeIndex: i, blocks: [...currentBlocks] });
+      measurer.innerHTML = '';
     }
   }
 
+  // Cleanup measurement element
+  document.body.removeChild(measurer);
+
   // Back cover (hard page)
-  pages.push({
-    type: 'back-cover',
-    episodeIndex: -1,
-    blocks: [],
-  });
+  pages.push({ type: 'back-cover', episodeIndex: -1, blocks: [] });
 
   return pages;
 }

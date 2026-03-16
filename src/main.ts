@@ -8,7 +8,7 @@ import './styles/responsive.css';
 import './styles/selector.css';
 
 import type { BookData } from './types';
-import { paginateEpisodes } from './paginator';
+import { paginateEpisodes, calculatePageDimensions } from './paginator';
 import { BookRenderer } from './book-renderer';
 import { setupNavigation, restoreBookmark } from './navigation';
 import { initSelector, hideSelector, showSelector } from './novel-selector';
@@ -48,19 +48,36 @@ async function loadNovel(novelId: string) {
     if (!res.ok) throw new Error(`Novel "${novelId}" not found`);
 
     const data: BookData = await res.json();
-    const isMobile = window.innerWidth <= 768;
-    const pages = paginateEpisodes(data.episodes, isMobile);
 
     await document.fonts.ready;
 
     showLoading(false);
-    showViewer(true);
+
+    // Show viewer invisible — needed for accurate dimension measurement
+    const wrapper = document.getElementById('book-wrapper')!;
+    wrapper.style.display = 'flex';
+    wrapper.style.opacity = '0';
+    document.getElementById('toc-panel')!.style.display = 'none';
+
+    // Calculate page dimensions from actual DOM layout
+    const bookEl = document.getElementById('book')!;
+    const dimensions = calculatePageDimensions(bookEl);
+
+    // Paginate using DOM measurement (no more text cutoff)
+    const pages = paginateEpisodes(data.episodes, dimensions);
+
+    // Make viewer visible
+    wrapper.style.opacity = '1';
 
     // Update title
     document.title = `${data.title} — ${data.subtitle}`;
 
     const renderer = new BookRenderer('book');
-    renderer.render(pages, data.episodes);
+    renderer.render(pages, data.episodes, dimensions, {
+      title: data.title,
+      subtitle: data.subtitle,
+      author: data.author,
+    });
     currentRenderer = renderer;
 
     setupNavigation(renderer, data.episodes, novelId);
