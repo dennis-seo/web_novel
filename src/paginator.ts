@@ -1,4 +1,4 @@
-import type { ContentBlock, Episode, Page } from './types';
+import type { ContentBlock, Episode, Page, FrontmatterData } from './types';
 
 export interface PageDimensions {
   width: number;
@@ -89,6 +89,35 @@ export function paginateEpisodes(
 
   // Book cover (hard page)
   pages.push({ type: 'book-cover', episodeIndex: -1, blocks: [] });
+
+  // Frontmatter: world map page
+  const mapData: FrontmatterData = {
+    mapImage: '/web_novel/illustrations/maps/map-eldia-overview.png',
+    mapTitle: '에르다스 — 제1대륙 엘디아',
+    locations: [
+      { name: '벨포드', desc: '모험의 시작점. 남부 초원 지대의 변방 도시' },
+      { name: '아르카디온', desc: '아르카디온 왕국의 수도. 세 강의 합류점' },
+      { name: '세레니아 숲', desc: '엘프 자치령. 고대 숲과 정령의 샘' },
+      { name: '카론', desc: '서해안 항구 도시. 대륙 간 교역의 거점' },
+      { name: '크레센트 산맥', desc: '북부 경계. 드워프 정착지가 산재' },
+    ],
+  };
+  pages.push({ type: 'frontmatter-map', episodeIndex: -1, blocks: [], frontmatter: mapData });
+
+  // Frontmatter: character profiles (2 per page)
+  const profiles: FrontmatterData = {
+    title: '등장인물 소개',
+    characters: [
+      { name: '카이렌 아셀', image: '/web_novel/illustrations/profiles/profile-kairen-s1.png', race: '인간', job: '마법사', age: '23세', rank: 'F→', desc: '분석형 후방 딜러 겸 전술가' },
+      { name: '가렌 벨크로스', image: '/web_novel/illustrations/profiles/profile-garen-s1.png', race: '인간', job: '기사', age: '25세', rank: 'E→', desc: '전위 탱커이자 파티의 정신적 지주' },
+      { name: '리에나 에란실', image: '/web_novel/illustrations/profiles/profile-liena-s1.png', race: '엘프', job: '정령술사', age: '127세', rank: 'D', desc: '치유와 정령 마법의 전문가' },
+      { name: '테오 마르케스', image: '/web_novel/illustrations/profiles/profile-theo-s1.png', race: '인간', job: '도적', age: '19세', rank: 'F', desc: '자유분방한 쌍검사' },
+    ],
+  };
+  // Page 1: first 2 characters
+  pages.push({ type: 'frontmatter-profile', episodeIndex: -1, blocks: [], frontmatter: { ...profiles, characters: profiles.characters!.slice(0, 2) } });
+  // Page 2: next 2 characters
+  pages.push({ type: 'frontmatter-profile', episodeIndex: -1, blocks: [], frontmatter: { ...profiles, characters: profiles.characters!.slice(2, 4) } });
 
   for (let i = 0; i < episodes.length; i++) {
     const ep = episodes[i];

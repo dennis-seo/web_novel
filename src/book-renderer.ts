@@ -46,6 +46,8 @@ export class BookRenderer {
     if (page.type === 'back-cover') classes.push('page-back-cover');
     if (page.type === 'episode-cover') classes.push('page-episode-cover');
     if (page.type === 'content') classes.push('page-content');
+    if (page.type === 'frontmatter-map') classes.push('page-frontmatter');
+    if (page.type === 'frontmatter-profile') classes.push('page-frontmatter');
     return classes.join(' ');
   }
 
@@ -76,6 +78,36 @@ export class BookRenderer {
           <div class="ep-divider"></div>
           <h2 class="ep-title">${formatInlineMarkdown(ep.title)}</h2>
         </div>`;
+
+      case 'frontmatter-map': {
+        const fm = page.frontmatter!;
+        const locs = (fm.locations || []).map(l =>
+          `<li><strong>${l.name}</strong> — ${l.desc}</li>`
+        ).join('');
+        return `<div class="frontmatter-map">
+          <h3 class="fm-title">${fm.mapTitle}</h3>
+          <figure class="fm-map-figure"><img src="${fm.mapImage}" alt="${fm.mapTitle}" loading="lazy"></figure>
+          <ul class="fm-locations">${locs}</ul>
+        </div>`;
+      }
+
+      case 'frontmatter-profile': {
+        const fm = page.frontmatter!;
+        const cards = (fm.characters || []).map(c =>
+          `<div class="fm-profile-card">
+            <img src="${c.image}" alt="${c.name}" class="fm-profile-img" loading="lazy">
+            <div class="fm-profile-info">
+              <strong class="fm-profile-name">${c.name}</strong>
+              <span class="fm-profile-meta">${c.race} · ${c.job} · ${c.age}</span>
+              <span class="fm-profile-desc">${c.desc}</span>
+            </div>
+          </div>`
+        ).join('');
+        return `<div class="frontmatter-profiles">
+          <h3 class="fm-title">${fm.title || '등장인물'}</h3>
+          ${cards}
+        </div>`;
+      }
 
       case 'content':
         return page.blocks.map(block => renderBlockHtml(block)).join('\n');

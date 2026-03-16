@@ -18,10 +18,29 @@ export interface Episode {
 }
 
 export interface Page {
-  type: 'book-cover' | 'back-cover' | 'episode-cover' | 'content';
+  type: 'book-cover' | 'back-cover' | 'episode-cover' | 'content' | 'frontmatter-map' | 'frontmatter-profile';
   episodeIndex: number;
   blocks: ContentBlock[];
   episodeMeta?: EpisodeMeta;
+  frontmatter?: FrontmatterData;
+}
+
+export interface CharacterProfile {
+  name: string;
+  image: string;
+  race: string;
+  job: string;
+  age: string;
+  rank: string;
+  desc: string;
+}
+
+export interface FrontmatterData {
+  mapImage?: string;
+  mapTitle?: string;
+  locations?: Array<{ name: string; desc: string }>;
+  characters?: CharacterProfile[];
+  title?: string;
 }
 
 export interface BookData {
