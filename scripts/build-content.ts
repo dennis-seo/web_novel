@@ -66,8 +66,8 @@ function classifyBlocks(content: string): Block[] {
       flushBuffer();
       const alt = imgMatch[1];
       const rawPath = imgMatch[2];
-      // Convert relative illustration path to web serving path
-      const src = '/illustrations/' + rawPath.replace(/^.*illustrations\//, '');
+      // Convert relative illustration path to web serving path (respects Vite base)
+      const src = '/web_novel/illustrations/' + rawPath.replace(/^.*illustrations\//, '');
       blocks.push({ type: 'illustration', content: alt, src, alt });
       continue;
     }
