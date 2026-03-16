@@ -29,6 +29,8 @@ export function renderBlockHtml(block: ContentBlock): string {
       return `<pre class="system-ui-zero">${formatInlineMarkdown(block.content)}</pre>`;
     case 'system-ui-v2':
       return `<pre class="system-ui-v2">${formatInlineMarkdown(block.content)}</pre>`;
+    case 'illustration':
+      return `<figure class="illustration"><img src="${block.src}" alt="${block.alt || block.content}" loading="lazy"><figcaption>${formatInlineMarkdown(block.content)}</figcaption></figure>`;
     case 'narrative':
     case 'dialogue':
       return `<p>${formatInlineMarkdown(block.content)}</p>`;

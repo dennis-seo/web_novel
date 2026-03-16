@@ -3,8 +3,10 @@ import path from 'path';
 import matter from 'gray-matter';
 
 interface Block {
-  type: 'narrative' | 'system-ui-zero' | 'system-ui-v2' | 'scene-break' | 'dialogue';
+  type: 'narrative' | 'system-ui-zero' | 'system-ui-v2' | 'scene-break' | 'dialogue' | 'illustration';
   content: string;
+  src?: string;
+  alt?: string;
 }
 
 interface Episode {
@@ -55,6 +57,18 @@ function classifyBlocks(content: string): Block[] {
     if (trimmed === '---' && !inSystemUI) {
       flushBuffer();
       blocks.push({ type: 'scene-break', content: '' });
+      continue;
+    }
+
+    // Illustration: ![alt](path)
+    const imgMatch = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+    if (imgMatch && !inSystemUI) {
+      flushBuffer();
+      const alt = imgMatch[1];
+      const rawPath = imgMatch[2];
+      // Convert relative illustration path to web serving path
+      const src = '/illustrations/' + rawPath.replace(/^.*illustrations\//, '');
+      blocks.push({ type: 'illustration', content: alt, src, alt });
       continue;
     }
 

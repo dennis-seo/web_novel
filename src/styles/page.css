@@ -35,6 +35,27 @@
   background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.03), transparent);
 }
 
+/* Illustration */
+.page figure.illustration {
+  margin: 16px 0;
+  text-align: center;
+}
+
+.page figure.illustration img {
+  max-width: 100%;
+  max-height: 60vh;
+  border-radius: 6px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  object-fit: contain;
+}
+
+.page figure.illustration figcaption {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #888;
+  line-height: 1.5;
+}
+
 /* Dark theme */
 .dark-theme .page {
   background: linear-gradient(145deg, #1c1c1c 0%, #222222 100%);
@@ -43,4 +64,12 @@
 
 .dark-theme .page-content::after {
   background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.02), transparent);
+}
+
+.dark-theme .page figure.illustration img {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+.dark-theme .page figure.illustration figcaption {
+  color: #777;
 }

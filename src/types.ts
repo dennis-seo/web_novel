@@ -6,8 +6,10 @@ export interface EpisodeMeta {
 }
 
 export interface ContentBlock {
-  type: 'narrative' | 'system-ui-zero' | 'system-ui-v2' | 'scene-break' | 'dialogue';
+  type: 'narrative' | 'system-ui-zero' | 'system-ui-v2' | 'scene-break' | 'dialogue' | 'illustration';
   content: string;
+  src?: string;
+  alt?: string;
 }
 
 export interface Episode {
