@@ -150,9 +150,12 @@ for (const folder of novelFolders) {
     const raw = fs.readFileSync(path.join(novelDir, file), 'utf-8');
     const { data, content } = matter(raw);
     const blocks = classifyBlocks(content);
+    // Extract episode number from filename to avoid YAML octal parsing issues
+    // (e.g., episode: 010 is parsed as octal 8 by YAML 1.1)
+    const epNumFromFile = parseInt(file.match(/ep(\d+)/)![1], 10);
     episodes.push({
       meta: {
-        episode: data.episode,
+        episode: epNumFromFile,
         title: data.title || '',
         chars: data.chars || 0,
         summary: data.summary || '',

@@ -108,10 +108,10 @@ export function paginateEpisodes(
   const profiles: FrontmatterData = {
     title: '등장인물 소개',
     characters: [
-      { name: '카이렌 아셀', image: '/web_novel/illustrations/profiles/profile-kairen-s1.png', race: '인간', job: '마법사', age: '23세', rank: 'F→', desc: '분석형 후방 딜러 겸 전술가' },
-      { name: '가렌 벨크로스', image: '/web_novel/illustrations/profiles/profile-garen-s1.png', race: '인간', job: '기사', age: '25세', rank: 'E→', desc: '전위 탱커이자 파티의 정신적 지주' },
-      { name: '리에나 에란실', image: '/web_novel/illustrations/profiles/profile-liena-s1.png', race: '엘프', job: '정령술사', age: '127세', rank: 'D', desc: '치유와 정령 마법의 전문가' },
-      { name: '테오 마르케스', image: '/web_novel/illustrations/profiles/profile-theo-s1.png', race: '인간', job: '도적', age: '19세', rank: 'F', desc: '자유분방한 쌍검사' },
+      { name: '카이렌 아셀', image: '/web_novel/illustrations/profiles/profile-kairen-s1.png', race: '인간(남)', job: '마법사', age: '23세', rank: 'F→', desc: '차분한 분석가. 관찰과 수식으로 전장을 읽는 후방 전술가' },
+      { name: '가렌 벨크로스', image: '/web_novel/illustrations/profiles/profile-garen-s1.png', race: '인간(남)', job: '전직 기사', age: '25세', rank: 'E→', desc: '무모하지만 동료를 위해 몸을 사리지 않는 전위 검사' },
+      { name: '리에나 에란실', image: '/web_novel/illustrations/profiles/profile-liena-s1.png', race: '엘프(여)', job: '정령술사', age: '127세(외견 23세)', rank: 'D', desc: '냉정해 보이지만 세심한 치유사. 바람 정령 실피드의 계약자' },
+      { name: '테오 마르케스', image: '/web_novel/illustrations/profiles/profile-theo-s1.png', race: '인간(남)', job: '도적', age: '19세', rank: 'F', desc: '빈민가 출신의 함정 해제 전문가. 밝고 에너지 넘치는 파티의 막내' },
     ],
   };
   // Page 1: first 2 characters
