@@ -119,6 +119,18 @@ export function paginateEpisodes(
   // Page 2: next 2 characters
   pages.push({ type: 'frontmatter-profile', episodeIndex: -1, blocks: [], frontmatter: { ...profiles, characters: profiles.characters!.slice(2, 4) } });
 
+  // Table of contents pages (after frontmatter)
+  const tocEntries = episodes.map(ep => ({ episode: ep.meta.episode, title: ep.meta.title }));
+  const TOC_PER_PAGE = 15;
+  for (let t = 0; t < tocEntries.length; t += TOC_PER_PAGE) {
+    pages.push({
+      type: 'toc',
+      episodeIndex: -1,
+      blocks: [],
+      tocEntries: tocEntries.slice(t, t + TOC_PER_PAGE),
+    });
+  }
+
   for (let i = 0; i < episodes.length; i++) {
     const ep = episodes[i];
 
@@ -141,6 +153,18 @@ export function paginateEpisodes(
           currentBlocks = [];
           measurer.innerHTML = '';
         }
+        continue;
+      }
+
+      // Illustrations always get their own dedicated page
+      // (lazy-loaded images can't be measured, so we force a page break)
+      if (block.type === 'illustration') {
+        if (currentBlocks.length > 0) {
+          pages.push({ type: 'content', episodeIndex: i, blocks: [...currentBlocks] });
+          currentBlocks = [];
+          measurer.innerHTML = '';
+        }
+        pages.push({ type: 'content', episodeIndex: i, blocks: [block] });
         continue;
       }
 

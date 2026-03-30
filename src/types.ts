@@ -18,11 +18,12 @@ export interface Episode {
 }
 
 export interface Page {
-  type: 'book-cover' | 'back-cover' | 'episode-cover' | 'content' | 'frontmatter-map' | 'frontmatter-profile';
+  type: 'book-cover' | 'back-cover' | 'episode-cover' | 'content' | 'frontmatter-map' | 'frontmatter-profile' | 'toc';
   episodeIndex: number;
   blocks: ContentBlock[];
   episodeMeta?: EpisodeMeta;
   frontmatter?: FrontmatterData;
+  tocEntries?: { episode: number; title: string }[];
 }
 
 export interface CharacterProfile {

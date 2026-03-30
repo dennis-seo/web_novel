@@ -53,14 +53,20 @@ async function loadNovel(novelId: string) {
 
     showLoading(false);
 
+    // Ensure book container is fully clean before re-render
+    const bookEl = document.getElementById('book')!;
+    bookEl.innerHTML = '';
+
     // Show viewer invisible — needed for accurate dimension measurement
     const wrapper = document.getElementById('book-wrapper')!;
     wrapper.style.display = 'flex';
     wrapper.style.opacity = '0';
     document.getElementById('toc-panel')!.style.display = 'none';
 
+    // Wait for layout to stabilize before measuring
+    await new Promise(resolve => requestAnimationFrame(resolve));
+
     // Calculate page dimensions from actual DOM layout
-    const bookEl = document.getElementById('book')!;
     const dimensions = calculatePageDimensions(bookEl);
 
     // Paginate using DOM measurement (no more text cutoff)

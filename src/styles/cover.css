@@ -156,3 +156,89 @@
 .dark-theme .ep-label {
   color: #666;
 }
+
+/* Table of Contents page */
+.page.page-toc {
+  padding: 0;
+  overflow: hidden;
+}
+
+.toc-page-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #f5f0e6;
+  padding: 32px 36px;
+  overflow: hidden;
+}
+
+.toc-page-heading {
+  font-family: 'D2Coding', 'Nanum Gothic Coding', monospace;
+  font-size: 0.8rem;
+  color: #aaa;
+  letter-spacing: 6px;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.toc-page-line {
+  width: 40px;
+  height: 1px;
+  background: #ccc;
+  margin: 0 auto 16px;
+}
+
+.toc-page-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.toc-page-item {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 5px 0;
+  border-bottom: 1px dotted rgba(0, 0, 0, 0.08);
+}
+
+.toc-page-ep {
+  font-family: 'D2Coding', 'Nanum Gothic Coding', monospace;
+  font-size: 0.65rem;
+  color: #4a6fa5;
+  min-width: 44px;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+.toc-page-title {
+  font-size: 0.85rem;
+  color: #444;
+  word-break: keep-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Dark theme TOC */
+.dark-theme .toc-page-content {
+  background: #1c1c1c;
+}
+
+.dark-theme .toc-page-heading {
+  color: #666;
+}
+
+.dark-theme .toc-page-line {
+  background: #444;
+}
+
+.dark-theme .toc-page-item {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+.dark-theme .toc-page-title {
+  color: #bbb;
+}

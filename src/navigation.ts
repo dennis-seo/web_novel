@@ -73,6 +73,61 @@ export function setupNavigation(renderer: BookRenderer, episodes: Episode[], nov
     if (e.target === tocPanel) tocPanel.style.display = 'none';
   };
 
+  // Page jump: click page indicator to enter page number
+  const pageIndicator = document.getElementById('page-indicator')!;
+  pageIndicator.style.cursor = 'pointer';
+  pageIndicator.title = '클릭하여 페이지 이동';
+
+  const newPageIndicator = pageIndicator.cloneNode(true) as HTMLElement;
+  pageIndicator.parentNode!.replaceChild(newPageIndicator, pageIndicator);
+  newPageIndicator.addEventListener('click', () => {
+    const total = parseInt(newPageIndicator.dataset.total || '1', 10);
+    const current = newPageIndicator.dataset.current || '1';
+
+    // Replace text with input
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.min = '1';
+    input.max = String(total);
+    input.value = current;
+    input.className = 'page-jump-input';
+
+    newPageIndicator.textContent = '';
+    newPageIndicator.appendChild(input);
+
+    const suffix = document.createElement('span');
+    suffix.textContent = ` / ${total}`;
+    suffix.style.color = '#777';
+    newPageIndicator.appendChild(suffix);
+
+    input.focus();
+    input.select();
+
+    const commitJump = () => {
+      const page = parseInt(input.value, 10);
+      if (!isNaN(page) && page >= 1 && page <= total) {
+        renderer.flipTo(page - 1);
+      }
+      // Restore display (will be updated by flip event)
+      newPageIndicator.textContent = `${input.value} / ${total}`;
+    };
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        commitJump();
+        input.blur();
+      }
+      if (e.key === 'Escape') {
+        newPageIndicator.textContent = `${current} / ${total}`;
+      }
+    });
+
+    input.addEventListener('blur', () => {
+      commitJump();
+    });
+  });
+
   // Home button
   const btnHome = document.getElementById('btn-home')!;
   const newBtnHome = btnHome.cloneNode(true) as HTMLElement;

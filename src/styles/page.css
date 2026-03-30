@@ -43,10 +43,20 @@
 
 .page figure.illustration img {
   max-width: 100%;
-  max-height: 60vh;
+  /* Use calc to fit within page content area (page height minus padding and caption) */
+  max-height: calc(100% - 40px);
   border-radius: 6px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
   object-fit: contain;
+}
+
+/* Illustration-only pages: center content vertically */
+.page figure.illustration:only-child {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 .page figure.illustration figcaption {

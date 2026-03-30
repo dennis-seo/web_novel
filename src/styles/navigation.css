@@ -31,6 +31,39 @@
   color: #777;
   min-width: 80px;
   text-align: center;
+  cursor: pointer;
+}
+
+#page-indicator:hover {
+  color: #aaa;
+}
+
+.page-jump-input {
+  width: 48px;
+  background: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 3px;
+  color: #eee;
+  font-family: 'D2Coding', 'Nanum Gothic Coding', 'Consolas', monospace;
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 2px 4px;
+  outline: none;
+}
+
+.page-jump-input:focus {
+  border-color: #4a6fa5;
+  box-shadow: 0 0 4px rgba(74, 111, 165, 0.4);
+}
+
+/* Hide number input arrows */
+.page-jump-input::-webkit-inner-spin-button,
+.page-jump-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.page-jump-input {
+  -moz-appearance: textfield;
 }
 
 /* TOC Panel */

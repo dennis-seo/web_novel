@@ -48,6 +48,7 @@ export class BookRenderer {
     if (page.type === 'content') classes.push('page-content');
     if (page.type === 'frontmatter-map') classes.push('page-frontmatter');
     if (page.type === 'frontmatter-profile') classes.push('page-frontmatter');
+    if (page.type === 'toc') classes.push('page-toc');
     return classes.join(' ');
   }
 
@@ -108,6 +109,16 @@ export class BookRenderer {
           ${cards}
         </div>`;
       }
+
+      case 'toc':
+        const entries = (page.tocEntries || []).map(e =>
+          `<li class="toc-page-item"><span class="toc-page-ep">EP${String(e.episode).padStart(3, '0')}</span><span class="toc-page-title">${formatInlineMarkdown(e.title)}</span></li>`
+        ).join('');
+        return `<div class="toc-page-content">
+          <h2 class="toc-page-heading">CONTENTS</h2>
+          <div class="toc-page-line"></div>
+          <ul class="toc-page-list">${entries}</ul>
+        </div>`;
 
       case 'content':
         return page.blocks.map(block => renderBlockHtml(block)).join('\n');
@@ -183,7 +194,11 @@ export class BookRenderer {
 
   private updatePageIndicator(pageNum: number) {
     const el = document.getElementById('page-indicator');
-    if (el) el.textContent = `${pageNum + 1} / ${this.pages.length}`;
+    if (el) {
+      el.textContent = `${pageNum + 1} / ${this.pages.length}`;
+      el.dataset.current = String(pageNum + 1);
+      el.dataset.total = String(this.pages.length);
+    }
   }
 
   flipNext() { this.pageFlip?.flipNext(); }
@@ -204,5 +219,8 @@ export class BookRenderer {
 
   destroy() {
     this.pageFlip?.destroy();
+    this.pageFlip = null;
+    // Fully clean up container — PageFlip.destroy() may leave wrapper elements
+    this.container.innerHTML = '';
   }
 }
